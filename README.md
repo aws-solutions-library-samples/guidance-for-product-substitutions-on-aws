@@ -83,6 +83,9 @@ There are currently a few in-built knn pre-filters on this solution, all of whic
 
 For example: `/substitutions?id=<PRODUCT_ID>&category_match_level=0&price_factor=1.5`
 
+**Note**
+But currently the sample data used doesn't contain prices and other fields required for further filtering. But once you replace with your own real data, you can take advantage of these extra queries
+
 #### Recommended for use on all queries
 
 - `category_match_level`:
