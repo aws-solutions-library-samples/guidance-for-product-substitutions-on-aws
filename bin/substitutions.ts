@@ -20,4 +20,6 @@ const app = new cdk.App({
   ],
 });
 
-new SubstitutionsStack(app, 'SubstitutionsStack', {});
+new SubstitutionsStack(app, 'SubstitutionsStack', {
+  description: 'AWS Product Substitutions (uksb-1tupboc20)',
+});
