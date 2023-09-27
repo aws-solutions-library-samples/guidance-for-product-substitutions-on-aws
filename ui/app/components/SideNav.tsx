@@ -9,7 +9,7 @@ export const SideNav = () => {
   return (
     <SideNavigation
       activeHref={activeHref}
-      header={{ href: '/', text: 'Substitution' }}
+      header={{ href: '/', text: 'Substitutions' }}
       onFollow={(event) => {
         if (!event.detail.external) {
           event.preventDefault();

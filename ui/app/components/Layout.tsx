@@ -21,6 +21,6 @@ export const Layout = (props: PropsWithChildren) => {
   return isLoading ? (
     <Spinner size="large" />
   ) : (
-    <AppLayout navigation={<SideNav />} content={children} />
+    <AppLayout navigation={<SideNav />} content={children} toolsHide={true} />
   );
 };
