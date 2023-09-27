@@ -12,6 +12,7 @@
     "cdk-bootstrap": "cdk bootstrap --toolkit-stack-name CDKToolkit-DevPortal --qualifier subs"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.2",
     "@types/jest": "^29.2.5",
     "@types/node": "18.11.18",
     "aws-cdk": "2.87.0",
@@ -22,11 +23,13 @@
   },
   "dependencies": {
     "@aws-cdk/aws-apigatewayv2-alpha": "^2.87.0-alpha.0",
-    "@aws-cdk/aws-apigatewayv2-authorizers-alpha": "^2.87.0-alpha.0",
     "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.87.0-alpha.0",
+    "@aws-cdk/aws-cognito-identitypool-alpha": "^2.87.0-alpha.0",
     "@cdklabs/cdk-validator-cfnguard": "^0.0.51",
     "aws-cdk-lib": "2.87.0",
     "constructs": "^10.0.0",
+    "esbuild": "^0.19.3",
+    "fs-extra": "^11.1.1",
     "source-map-support": "^0.5.21"
   }
 }

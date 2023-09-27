@@ -14,10 +14,6 @@ import {
 } from 'aws-cdk-lib';
 import { HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
-import {
-  HttpLambdaAuthorizer,
-  HttpLambdaResponseType,
-} from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 
 interface ApiProps {
   openSearchDomain: aws_opensearchservice.Domain;
@@ -36,11 +32,8 @@ export class Api extends Construct {
     const authFn = new aws_lambda_nodejs.NodejsFunction(this, 'auth', {
       runtime: aws_lambda.Runtime.NODEJS_16_X,
     });
-    const authorizer = new HttpLambdaAuthorizer('Authorizer', authFn, {
-      responseTypes: [HttpLambdaResponseType.SIMPLE],
-    });
 
-    const httpApi = new HttpApi(this, 'HttpApi', { defaultAuthorizer: authorizer });
+    const httpApi = new HttpApi(this, 'HttpApi', {});
 
     const accessLogGroup = new aws_logs.LogGroup(this, 'APIGW-AccessLogs');
     const stage = httpApi.defaultStage!.node.defaultChild as any;

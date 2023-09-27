@@ -11,14 +11,14 @@ import {
   aws_iam,
   Duration,
   Stack,
-  aws_s3_deployment,
+  aws_s3,
 } from 'aws-cdk-lib';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 
 interface DynamoProps {
   openSearchDomain: aws_opensearchservice.Domain;
   openSearchRole: aws_iam.Role;
+  inputBucket: aws_s3.Bucket;
 }
 
 export class Dynamo extends Construct {
@@ -27,27 +27,7 @@ export class Dynamo extends Construct {
 
   constructor(scope: Construct, name: string, props: DynamoProps) {
     super(scope, name);
-    const { openSearchDomain, openSearchRole } = props;
-
-    const inputBucket = new s3.Bucket(this, 'InputBucket', {
-      lifecycleRules: [{ id: 'DeleteOldInputFiles', enabled: true, expiration: Duration.days(30) }],
-      versioned: true,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      enforceSSL: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-      bucketName: `${Stack.of(this).account}-${Stack.of(this).region}-substitutions-input-bucket`,
-      serverAccessLogsBucket: new s3.Bucket(this, 'InputBucketAccessLog', {
-        lifecycleRules: [{ id: 'DeleteOldLogs', enabled: true, expiration: Duration.days(30) }],
-        versioned: true,
-        enforceSSL: true,
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        autoDeleteObjects: true,
-        removalPolicy: RemovalPolicy.DESTROY,
-      }),
-    });
+    const { openSearchDomain, openSearchRole, inputBucket } = props;
 
     const table = new aws_dynamodb.Table(this, 'ProductsTable', {
       partitionKey: { name: 'id', type: aws_dynamodb.AttributeType.STRING },
@@ -98,7 +78,7 @@ export class Dynamo extends Construct {
 
     seedLambda.addEventSource(
       new S3EventSource(inputBucket, {
-        events: [s3.EventType.OBJECT_CREATED],
+        events: [aws_s3.EventType.OBJECT_CREATED],
       })
     );
 
@@ -129,16 +109,6 @@ export class Dynamo extends Construct {
       })
     );
     openSearchDomain.grantReadWrite(dynamoStreamLambda);
-
-    const seedData = new aws_s3_deployment.BucketDeployment(this, 'DeployWebsite', {
-      sources: [aws_s3_deployment.Source.asset('sample-data')],
-      destinationBucket: inputBucket,
-      retainOnDelete: false,
-    });
-    seedData.node.addDependency(table);
-    seedData.node.addDependency(seedLambda);
-    seedData.node.addDependency(countLambda);
-    seedData.node.addDependency(dynamoStreamLambda);
 
     this.table = table;
   }
