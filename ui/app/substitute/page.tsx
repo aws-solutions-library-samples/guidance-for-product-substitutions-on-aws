@@ -9,28 +9,42 @@ import Form from '@cloudscape-design/components/form';
 import SpaceBetween from '@cloudscape-design/components/space-between';
 import Button from '@cloudscape-design/components/button';
 import Header from '@cloudscape-design/components/header';
-import Alert, { AlertProps } from '@cloudscape-design/components/alert';
 import ContentLayout from '@cloudscape-design/components/content-layout';
 import Table from '@cloudscape-design/components/table';
 import Box from '@cloudscape-design/components/box';
 import { Product } from '../../types';
 
+const columnDefinitions = [
+  {
+    id: 'id',
+    header: 'Id',
+    cell: (item: Product) => item.id,
+    sortingField: 'id',
+    isRowHeader: true,
+  },
+  {
+    id: 'title',
+    header: 'Title',
+    cell: (item: Product) => item.title,
+    sortingField: 'alt',
+  },
+  {
+    id: 'categories',
+    header: 'Categories',
+    cell: (item: Product) => item.categories,
+  },
+];
+
 export default function Substitute() {
-  const [alert, setAlert] = useState<{ type: AlertProps.Type; msg: string }>();
   const [productId, setProductId] = useState('');
-  const [subs, setSubs] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [product, ...subs] = products;
 
   return (
     <ContentLayout
       header={
         <SpaceBetween size="m">
           <Header variant="h1">Substitute</Header>
-
-          {alert ? (
-            <Alert dismissible type={alert.type} onDismiss={() => setAlert(undefined)}>
-              {alert.msg}
-            </Alert>
-          ) : null}
         </SpaceBetween>
       }
     >
@@ -46,14 +60,10 @@ export default function Substitute() {
             onSubmit={async (e) => {
               e.preventDefault();
               try {
-                const { substitutions } = await API.get(
-                  'subs',
-                  '/substitutions?id=' + productId,
-                  {}
-                );
-                setSubs(substitutions);
+                const result = await API.get('subs', '/substitutions?id=' + productId, {});
+                setProducts(result);
               } catch (error) {
-                setAlert({ type: 'error', msg: 'Request Failed' });
+                console.error(error);
               }
             }}
           >
@@ -64,32 +74,19 @@ export default function Substitute() {
             </Form>
           </form>
           <Table
-            columnDefinitions={[
-              {
-                id: 'id',
-                header: 'Id',
-                cell: (item) => item.id,
-                sortingField: 'id',
-                isRowHeader: true,
-              },
-              {
-                id: 'title',
-                header: 'Title',
-                cell: (item) => item.title,
-                sortingField: 'alt',
-              },
-              {
-                id: 'categories',
-                header: 'Categories',
-                cell: (item) => item.categories,
-              },
-            ]}
+            columnDefinitions={columnDefinitions}
+            items={[product]}
+            sortingDisabled
+            header={<Header> Missing Product </Header>}
+          />
+          <Table
+            columnDefinitions={columnDefinitions}
             items={subs}
             loadingText="Getting Substitutions"
             sortingDisabled
             empty={
               <Box margin={{ vertical: 'xs' }} textAlign="center" color="inherit">
-                No Substitutions
+                No Substitutions Found
               </Box>
             }
             header={<Header> Recommended Substitutions </Header>}
