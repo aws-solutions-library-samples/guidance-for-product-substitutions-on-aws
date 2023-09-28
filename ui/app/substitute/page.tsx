@@ -19,19 +19,17 @@ const columnDefinitions = [
     id: 'id',
     header: 'Id',
     cell: (item: Product) => item.id,
-    sortingField: 'id',
     isRowHeader: true,
   },
   {
     id: 'title',
     header: 'Title',
     cell: (item: Product) => item.title,
-    sortingField: 'alt',
   },
   {
     id: 'categories',
     header: 'Categories',
-    cell: (item: Product) => item.categories,
+    cell: (item: Product) => item.categories.join(', '),
   },
 ];
 
@@ -73,12 +71,14 @@ export default function Substitute() {
               </FormField>
             </Form>
           </form>
-          <Table
-            columnDefinitions={columnDefinitions}
-            items={[product]}
-            sortingDisabled
-            header={<Header> Missing Product </Header>}
-          />
+          {product ? (
+            <Table
+              columnDefinitions={columnDefinitions}
+              items={[product]}
+              sortingDisabled
+              header={<Header> Missing Product </Header>}
+            />
+          ) : null}
           <Table
             columnDefinitions={columnDefinitions}
             items={subs}

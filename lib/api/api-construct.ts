@@ -62,6 +62,17 @@ export class Api extends Construct {
     };
     accessLogGroup.grantWrite(new aws_iam.ServicePrincipal('apigateway.amazonaws.com'));
 
+    const productsFn = new aws_lambda.Function(this, 'ProductsApiLambda', {
+      code: aws_lambda.Code.fromAsset('lib/api/lambdas/products'),
+      environment: {
+        tableName: productsTable.tableName,
+      },
+      timeout: Duration.minutes(1),
+      runtime: aws_lambda.Runtime.PYTHON_3_8,
+      handler: 'index.handler',
+    });
+    productsTable.grantReadData(productsFn);
+
     const subsFn = new aws_lambda.DockerImageFunction(this, 'SubsApiLambda', {
       code: aws_lambda.DockerImageCode.fromImageAsset('lib/api/lambdas/substitutions'),
       architecture:
@@ -94,13 +105,20 @@ export class Api extends Construct {
       role: openSearchRole,
       timeout: Duration.minutes(15),
     });
-
     countTable.grantReadData(statusFn);
     productsTable.grantReadData(statusFn);
 
+    const productsIntegration = new HttpLambdaIntegration('ProductsIntegration', productsFn);
     const subsIntegration = new HttpLambdaIntegration('SubsIntegration', subsFn);
     const addIntegration = new HttpLambdaIntegration('AddProductIntegration', addProductFn);
     const statusIntegration = new HttpLambdaIntegration('StatusIntegration', statusFn, {});
+
+    const [productsRoute] = httpApi.addRoutes({
+      path: '/products',
+      methods: [HttpMethod.GET],
+      integration: productsIntegration,
+    });
+    productsRoute.grantInvoke(accessRole);
 
     const [subsRoute] = httpApi.addRoutes({
       path: '/substitutions',
@@ -109,17 +127,19 @@ export class Api extends Construct {
     });
     subsRoute.grantInvoke(accessRole);
 
-    httpApi.addRoutes({
+    const [addRoute] = httpApi.addRoutes({
       path: '/add-product',
       methods: [HttpMethod.POST],
       integration: addIntegration,
     });
+    addRoute.grantInvoke(accessRole);
 
-    httpApi.addRoutes({
+    const [statusRoute] = httpApi.addRoutes({
       path: '/status',
       methods: [HttpMethod.GET],
       integration: statusIntegration,
     });
+    statusRoute.grantInvoke(accessRole);
 
     this.httpApi = httpApi;
   }
