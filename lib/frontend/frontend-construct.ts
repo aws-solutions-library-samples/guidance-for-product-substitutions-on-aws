@@ -19,6 +19,7 @@ import { AmplifyConfig } from '../../ui/types';
 interface FrontendProps {
   identityPoolId: string;
   bucketName: string;
+  api: { name: string; endpoint: string; region: string };
 }
 
 export class Frontend extends Construct {
@@ -61,6 +62,18 @@ export class Frontend extends Construct {
       defaultRootObject: 'index.html',
       enableLogging: true,
       logBucket: accessLogBucket,
+      errorResponses: [
+        {
+          httpStatus: 403,
+          responsePagePath: '/',
+          responseHttpStatus: 200,
+        },
+        {
+          httpStatus: 404,
+          responsePagePath: '/',
+          responseHttpStatus: 200,
+        },
+      ],
     });
 
     const config: AmplifyConfig = {
@@ -74,6 +87,7 @@ export class Frontend extends Construct {
           },
         },
       },
+      API: { endpoints: [props.api] },
     };
 
     const execOptions: childProcess.ExecSyncOptions = { stdio: 'inherit' };
@@ -90,7 +104,7 @@ export class Frontend extends Construct {
               tryBundle(outputDir: string) {
                 try {
                   childProcess.execSync('esbuild --version', execOptions);
-                  childProcess.execSync('cd ui && npm ci', execOptions);
+                  childProcess.execSync('cd ui/node_modules || (cd ui && npm ci)', execOptions);
                   childProcess.execSync('cd ui && npm run build', execOptions);
                   fsExtra.copySync('ui/out', outputDir);
                   return true;

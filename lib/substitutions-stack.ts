@@ -28,8 +28,6 @@ export class SubstitutionsStack extends Stack {
           ],
           allowedOrigins: ['*'],
           allowedHeaders: ['*'],
-          id: 'myCORSRuleId1',
-          maxAge: 3600,
         },
       ],
       lifecycleRules: [{ id: 'DeleteOldInputFiles', enabled: true, expiration: Duration.days(30) }],
@@ -51,12 +49,6 @@ export class SubstitutionsStack extends Stack {
     });
     inputBucket.grantPut(identityPool.unauthenticatedRole);
 
-    new Frontend(this, 'Frontend', {
-      identityPoolId: identityPool.identityPoolId,
-      bucketName: inputBucket.bucketName,
-    });
-    return;
-
     const openSearch = new OpenSearch(this, 'OpenSearch', {});
     const dynamo = new Dynamo(this, 'Dynamo', {
       openSearchDomain: openSearch.domain,
@@ -69,6 +61,17 @@ export class SubstitutionsStack extends Stack {
       openSearchRole: openSearch.masterRole,
       productsTable: dynamo.table,
       countTable: dynamo.countTable,
+      accessRole: identityPool.unauthenticatedRole,
+    });
+
+    new Frontend(this, 'Frontend', {
+      identityPoolId: identityPool.identityPoolId,
+      bucketName: inputBucket.bucketName,
+      api: {
+        name: api.httpApi.httpApiName!,
+        endpoint: api.httpApi.apiEndpoint,
+        region: this.region,
+      },
     });
 
     new CfnOutput(this, 'Request Example', {

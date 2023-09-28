@@ -12,4 +12,13 @@ export type AmplifyConfig = {
       };
     };
   };
+  API: {
+    endpoints: { name: string; endpoint: string; region: string }[];
+  };
+};
+
+export type Product = {
+  id: string;
+  title: string;
+  categories: string[];
 };
