@@ -10,7 +10,7 @@ table = dynamodb.Table(table_name)
 
 
 def handler(event, context):
-    scan_kwargs = {"Limit": 10}
+    scan_kwargs = {"Limit": 15}
     if (
         "queryStringParameters" in event
         and "pagination_key" in event["queryStringParameters"]
@@ -20,4 +20,7 @@ def handler(event, context):
         }
 
     result = table.scan(**scan_kwargs)
-    return {"items": result["Items"], "pagination_key": result["LastEvaluatedKey"]}
+    return {
+        "items": result["Items"],
+        "pagination_key": result["LastEvaluatedKey"]["id"],
+    }

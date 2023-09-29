@@ -8,20 +8,25 @@ import Header from '@cloudscape-design/components/header';
 import ContentLayout from '@cloudscape-design/components/content-layout';
 import Table from '@cloudscape-design/components/table';
 import Box from '@cloudscape-design/components/box';
+import Pagination from '@cloudscape-design/components/pagination';
 import { Product } from '../../types';
+
+const pagKeys: string[] = [];
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [paginationKey, setPaginationKey] = useState();
+  const [pageIndex, setPageIndex] = useState(1);
 
   useEffect(() => {
-    API.get('subs', '/products', {})
+    const pagKey = pagKeys[pagKeys.length - 1];
+    const path = pagKey ? `/products?pagination_key=${pagKey}` : '/products';
+    API.get('subs', path, {})
       .then(({ items, pagination_key }) => {
         setProducts(items);
-        setPaginationKey(paginationKey);
+        pagKeys.push(pagination_key);
       })
       .catch((err) => console.error(err));
-  }, []);
+  }, [pageIndex]);
 
   return (
     <ContentLayout
@@ -57,6 +62,19 @@ export default function Products() {
               cell: (item) => item.categories.join(', '),
             },
           ]}
+          pagination={
+            <Pagination
+              currentPageIndex={pageIndex}
+              pagesCount={50}
+              openEnd={true}
+              onNextPageClick={() => setPageIndex(pageIndex + 1)}
+              onPreviousPageClick={() => {
+                setPageIndex(pageIndex - 1);
+                pagKeys.pop();
+                pagKeys.pop();
+              }}
+            />
+          }
           items={products}
           loadingText="Getting Products"
           sortingDisabled
