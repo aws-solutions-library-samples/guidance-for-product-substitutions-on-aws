@@ -62,16 +62,17 @@ export class Api extends Construct {
     };
     accessLogGroup.grantWrite(new aws_iam.ServicePrincipal('apigateway.amazonaws.com'));
 
-    const productsFn = new aws_lambda.Function(this, 'ProductsApiLambda', {
-      code: aws_lambda.Code.fromAsset('lib/api/lambdas/products'),
+    const productsFn = new aws_lambda.DockerImageFunction(this, 'ProductsApiLambda', {
+      code: aws_lambda.DockerImageCode.fromImageAsset('lib/api/lambdas/products'),
+      architecture:
+        process.arch === 'arm64' ? aws_lambda.Architecture.ARM_64 : aws_lambda.Architecture.X86_64,
       environment: {
-        tableName: productsTable.tableName,
+        region: Stack.of(this).region,
+        host: openSearchDomain.domainEndpoint,
       },
+      role: openSearchRole,
       timeout: Duration.minutes(1),
-      runtime: aws_lambda.Runtime.PYTHON_3_8,
-      handler: 'index.handler',
     });
-    productsTable.grantReadData(productsFn);
 
     const subsFn = new aws_lambda.DockerImageFunction(this, 'SubsApiLambda', {
       code: aws_lambda.DockerImageCode.fromImageAsset('lib/api/lambdas/substitutions'),

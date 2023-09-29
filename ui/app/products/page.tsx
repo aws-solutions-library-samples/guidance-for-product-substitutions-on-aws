@@ -9,26 +9,28 @@ import ContentLayout from '@cloudscape-design/components/content-layout';
 import Table from '@cloudscape-design/components/table';
 import Box from '@cloudscape-design/components/box';
 import Pagination from '@cloudscape-design/components/pagination';
+import TextFilter from '@cloudscape-design/components/text-filter';
 import { Product } from '../../types';
 
-const pagKeys: string[] = [];
+const size = 10;
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [pageIndex, setPageIndex] = useState(1);
+  const [search, setSearch] = useState('');
   const [count, setCount] = useState(0);
+  const [triggerSearch, setTriggerSearch] = useState(0);
 
   useEffect(() => {
-    const pagKey = pagKeys[pagKeys.length - 1];
-    const path = pagKey ? `/products?pagination_key=${pagKey}` : '/products';
+    const pageFrom = (pageIndex - 1) * size;
+    const path = `/products?size=${size}&pageFrom=${pageFrom}&search=${search}`;
     API.get('subs', path, {})
-      .then(({ items, pagination_key, count }) => {
+      .then(({ items, count }) => {
         setCount(count);
         setProducts(items);
-        pagKeys.push(pagination_key);
       })
       .catch((err) => console.error(err));
-  }, [pageIndex]);
+  }, [pageIndex, triggerSearch]);
 
   return (
     <ContentLayout
@@ -46,6 +48,15 @@ export default function Products() {
         }
       >
         <Table
+          filter={
+            <TextFilter
+              filteringPlaceholder="Search Products"
+              filteringText={search}
+              countText={`${count} matches`}
+              onDelayedChange={() => setTriggerSearch(triggerSearch + 1)}
+              onChange={({ detail }) => setSearch(detail.filteringText)}
+            />
+          }
           columnDefinitions={[
             {
               id: 'id',
@@ -69,12 +80,7 @@ export default function Products() {
               currentPageIndex={pageIndex}
               pagesCount={count}
               openEnd={true}
-              onNextPageClick={() => setPageIndex(pageIndex + 1)}
-              onPreviousPageClick={() => {
-                setPageIndex(pageIndex - 1);
-                pagKeys.pop();
-                pagKeys.pop();
-              }}
+              onChange={({ detail }) => setPageIndex(detail.currentPageIndex)}
             />
           }
           items={products}
