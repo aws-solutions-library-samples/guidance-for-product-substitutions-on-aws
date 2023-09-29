@@ -16,12 +16,14 @@ const pagKeys: string[] = [];
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [pageIndex, setPageIndex] = useState(1);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     const pagKey = pagKeys[pagKeys.length - 1];
     const path = pagKey ? `/products?pagination_key=${pagKey}` : '/products';
     API.get('subs', path, {})
-      .then(({ items, pagination_key }) => {
+      .then(({ items, pagination_key, count }) => {
+        setCount(count);
         setProducts(items);
         pagKeys.push(pagination_key);
       })
@@ -65,7 +67,7 @@ export default function Products() {
           pagination={
             <Pagination
               currentPageIndex={pageIndex}
-              pagesCount={50}
+              pagesCount={count}
               openEnd={true}
               onNextPageClick={() => setPageIndex(pageIndex + 1)}
               onPreviousPageClick={() => {

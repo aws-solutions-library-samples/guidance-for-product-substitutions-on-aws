@@ -19,8 +19,10 @@ def handler(event, context):
             "id": event["queryStringParameters"]["pagination_key"]
         }
 
-    result = table.scan(**scan_kwargs)
+    response = table.scan(**scan_kwargs)
+
     return {
-        "items": result["Items"],
-        "pagination_key": result["LastEvaluatedKey"]["id"],
+        "items": response["Items"],
+        "pagination_key": response["LastEvaluatedKey"]["id"],
+        "count": table.item_count,
     }
