@@ -48,7 +48,7 @@ export default function Substitute() {
             }}
           >
             <Form actions={<Button variant="primary">Submit</Button>}>
-              <FormField label="Product">
+              <FormField label="Product Id:">
                 <Input value={productId} onChange={({ detail }) => setProductId(detail.value)} />
               </FormField>
             </Form>

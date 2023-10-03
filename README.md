@@ -32,8 +32,27 @@ The project is built using CDK IaC. So it can be deployed to your AWS account wi
    npm run cdk deploy
    ```
 1. For any future changes you just need to redeploy using `npm cdk run deploy`
+1. After deployment is successful the CLI will output the endpoint for the demo UI.
 
-## Loading your data
+### Demo UI
+
+1. Click on the the UI endpoint in the CLI output to visit the App.
+1. Go to Upload section.
+1. Upload our examle data located here [sample-data/instacart.jsonl](./sample-data/instacart.jsonl)
+1. Wait a few minutes, then you can visit the Products section and start seeing them listed.
+1. In order test a substitution pick any product and copy its Id.
+1. Go to Substute Section and paste the Id and Submit.
+1. You should get a list of recommended substitutions for the product you requested.
+
+### Clean up
+
+To remove all resources created by this stack run the following
+
+```
+npm run cdk destroy
+```
+
+## Loading your own data
 
 ### Formatting
 
@@ -52,6 +71,7 @@ Highly desired fields:
 
 Other reserved, optional fields:
 
+- `image` (string) - url for image of product.
 - `brand` (string) - categorical fields containing the brand, must be consistently spelled.
 - `allergens` (string[]) - known allergens of the product as an array; again with consistent spelling, e.g. ['wheat', 'nuts']
 - `diet_type` (string[]) - an array containing e.g. ['vegan', 'kosher', 'gluten free']
@@ -122,14 +142,6 @@ As well as the main subs API endpoint at `/substitutions` (GET), there are two a
 
 - `/add-product` (POST) - accepts a new product in JSON format as the body to be added to the dataset. This is for one-at-a-time product adds; larger batches should be uploaded to S3.
 - `/status` (GET) - returns the number of products in the opensearch index and in the dynamo table. This is to give an indication on the progress of the indexing. Indexing has finished when these two values match.
-
-## Clean up
-
-To remove all resources created by this stack run the following
-
-```
-npm run cdk destroy
-```
 
 ## Security
 

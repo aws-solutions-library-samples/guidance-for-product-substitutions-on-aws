@@ -126,7 +126,13 @@ export class Frontend extends Construct {
     });
     configDeployment.node.addDependency(webDeployment);
 
-    new CfnOutput(this, 'Endpoint', { value: distribution.distributionDomainName });
-    new CfnOutput(this, 'FrontendConfig', { value: JSON.stringify(config) });
+    new CfnOutput(this, 'Endpoint', {
+      description: 'Endpoint Url',
+      value: distribution.distributionDomainName,
+    });
+    new CfnOutput(this, 'FrontendConfig', {
+      description: 'Paste Config into public/config.json to deveop locally',
+      value: JSON.stringify(config),
+    });
   }
 }
