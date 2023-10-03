@@ -20,5 +20,6 @@ export type AmplifyConfig = {
 export type Product = {
   id: string;
   title: string;
+  image: string;
   categories: string[];
 };

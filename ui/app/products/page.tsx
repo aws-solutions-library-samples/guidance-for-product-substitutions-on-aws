@@ -11,6 +11,7 @@ import Box from '@cloudscape-design/components/box';
 import Pagination from '@cloudscape-design/components/pagination';
 import TextFilter from '@cloudscape-design/components/text-filter';
 import { Product } from '../../types';
+import { columnDefinitions } from '../shared';
 
 const size = 10;
 
@@ -57,24 +58,7 @@ export default function Products() {
               onChange={({ detail }) => setSearch(detail.filteringText)}
             />
           }
-          columnDefinitions={[
-            {
-              id: 'id',
-              header: 'Id',
-              cell: (item) => item.id,
-              isRowHeader: true,
-            },
-            {
-              id: 'title',
-              header: 'Title',
-              cell: (item) => item.title,
-            },
-            {
-              id: 'categories',
-              header: 'Categories',
-              cell: (item) => item.categories.join(', '),
-            },
-          ]}
+          columnDefinitions={columnDefinitions}
           pagination={
             <Pagination
               currentPageIndex={pageIndex}

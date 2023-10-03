@@ -13,25 +13,7 @@ import ContentLayout from '@cloudscape-design/components/content-layout';
 import Table from '@cloudscape-design/components/table';
 import Box from '@cloudscape-design/components/box';
 import { Product } from '../../types';
-
-const columnDefinitions = [
-  {
-    id: 'id',
-    header: 'Id',
-    cell: (item: Product) => item.id,
-    isRowHeader: true,
-  },
-  {
-    id: 'title',
-    header: 'Title',
-    cell: (item: Product) => item.title,
-  },
-  {
-    id: 'categories',
-    header: 'Categories',
-    cell: (item: Product) => item.categories.join(', '),
-  },
-];
+import { columnDefinitions } from '../shared';
 
 export default function Substitute() {
   const [productId, setProductId] = useState('');
