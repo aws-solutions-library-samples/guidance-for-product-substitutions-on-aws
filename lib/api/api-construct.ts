@@ -9,14 +9,17 @@ import {
   aws_dynamodb,
   aws_logs,
   aws_iam,
+  aws_lambda_nodejs,
   Stack,
 } from 'aws-cdk-lib';
 import { HttpApi, HttpMethod, CorsHttpMethod } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
-import { HttpIamAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
+import {
+  HttpLambdaAuthorizer,
+  HttpLambdaResponseType,
+} from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 
 interface ApiProps {
-  accessRole: aws_iam.IRole;
   openSearchDomain: aws_opensearchservice.Domain;
   openSearchRole: aws_iam.Role;
   productsTable: aws_dynamodb.Table;
@@ -28,9 +31,14 @@ export class Api extends Construct {
 
   constructor(scope: Construct, name: string, props: ApiProps) {
     super(scope, name);
-    const { openSearchDomain, openSearchRole, productsTable, countTable, accessRole } = props;
+    const { openSearchDomain, openSearchRole, productsTable, countTable } = props;
 
-    const authorizer = new HttpIamAuthorizer();
+    const authFn = new aws_lambda_nodejs.NodejsFunction(this, 'auth', {
+      runtime: aws_lambda.Runtime.NODEJS_16_X,
+    });
+    const authorizer = new HttpLambdaAuthorizer('Authorizer', authFn, {
+      responseTypes: [HttpLambdaResponseType.SIMPLE],
+    });
 
     const httpApi = new HttpApi(this, 'HttpApi', {
       apiName: 'subs',
@@ -114,33 +122,29 @@ export class Api extends Construct {
     const addIntegration = new HttpLambdaIntegration('AddProductIntegration', addProductFn);
     const statusIntegration = new HttpLambdaIntegration('StatusIntegration', statusFn, {});
 
-    const [productsRoute] = httpApi.addRoutes({
+    httpApi.addRoutes({
       path: '/products',
       methods: [HttpMethod.GET],
       integration: productsIntegration,
     });
-    productsRoute.grantInvoke(accessRole);
 
-    const [subsRoute] = httpApi.addRoutes({
+    httpApi.addRoutes({
       path: '/substitutions',
       methods: [HttpMethod.GET],
       integration: subsIntegration,
     });
-    subsRoute.grantInvoke(accessRole);
 
-    const [addRoute] = httpApi.addRoutes({
+    httpApi.addRoutes({
       path: '/add-product',
       methods: [HttpMethod.POST],
       integration: addIntegration,
     });
-    addRoute.grantInvoke(accessRole);
 
-    const [statusRoute] = httpApi.addRoutes({
+    httpApi.addRoutes({
       path: '/status',
       methods: [HttpMethod.GET],
       integration: statusIntegration,
     });
-    statusRoute.grantInvoke(accessRole);
 
     this.httpApi = httpApi;
   }

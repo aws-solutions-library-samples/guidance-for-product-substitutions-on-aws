@@ -61,7 +61,6 @@ export class SubstitutionsStack extends Stack {
       openSearchRole: openSearch.masterRole,
       productsTable: dynamo.table,
       countTable: dynamo.countTable,
-      accessRole: identityPool.unauthenticatedRole,
     });
 
     new Frontend(this, 'Frontend', {
@@ -72,6 +71,20 @@ export class SubstitutionsStack extends Stack {
         endpoint: api.httpApi.apiEndpoint,
         region: this.region,
       },
+    });
+
+    new CfnOutput(this, 'Request Example', {
+      description: 'Replace <PRODUCT_ID> with valid product id value',
+      value: JSON.stringify(
+        {
+          substitutions: api.httpApi.apiEndpoint + '/substitutions?id=<PRODUCT_ID>',
+          example: `curl ${api.httpApi.apiEndpoint}/substitutions?id=1 -H Authorization:ChangeMe`,
+          status: api.httpApi.apiEndpoint + '/status',
+          add_product: api.httpApi.apiEndpoint + '/add-product',
+        },
+        undefined,
+        2
+      ),
     });
   }
 }

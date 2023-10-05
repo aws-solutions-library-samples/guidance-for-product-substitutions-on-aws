@@ -128,7 +128,7 @@ export class Frontend extends Construct {
 
     new CfnOutput(this, 'Endpoint', {
       description: 'Endpoint Url',
-      value: distribution.distributionDomainName,
+      value: 'https://' + distribution.distributionDomainName,
     });
     new CfnOutput(this, 'FrontendConfig', {
       description: 'Paste Config into public/config.json to deveop locally',

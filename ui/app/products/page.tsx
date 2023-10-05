@@ -25,7 +25,7 @@ export default function Products() {
   useEffect(() => {
     const pageFrom = (pageIndex - 1) * size;
     const path = `/products?size=${size}&pageFrom=${pageFrom}&search=${search}`;
-    API.get('subs', path, {})
+    API.get('subs', path, { headers: { Authorization: 'ChangeMe' } })
       .then(({ items, count }) => {
         setCount(count);
         setProducts(items);
@@ -54,7 +54,10 @@ export default function Products() {
               filteringPlaceholder="Search Products"
               filteringText={search}
               countText={`${count} matches`}
-              onDelayedChange={() => setTriggerSearch(triggerSearch + 1)}
+              onDelayedChange={() => {
+                setTriggerSearch(triggerSearch + 1);
+                setPageIndex(1);
+              }}
               onChange={({ detail }) => setSearch(detail.filteringText)}
             />
           }
@@ -62,8 +65,7 @@ export default function Products() {
           pagination={
             <Pagination
               currentPageIndex={pageIndex}
-              pagesCount={count}
-              openEnd={true}
+              pagesCount={Math.ceil(count / size)}
               onChange={({ detail }) => setPageIndex(detail.currentPageIndex)}
             />
           }

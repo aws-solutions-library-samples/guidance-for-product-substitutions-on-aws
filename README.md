@@ -95,7 +95,7 @@ Due to the lack of `price` field you cannot use the `price_factor` filter (see _
 You can request substitutions by querying the `/substitutions?id=<PRODUCT_ID>` of your API. The API endpoint is printed by the CDK CLI after deployment, and is also available by looking in the outputs section of the cloudformation stack in the console.
 
 **Note**
-The api is protected by a lambda [authorizer](./lib/api/api-construct.auth.ts), make sure to add an Authorization header with any dummy value in order to call the endpoint successfully e.g `curl https://<API_Endpoint>/substitutions\?id\=<PRODUCT_ID> -H Authorization:auth`. For future use please add your own security logic in the auth lambda.
+The api is protected by a lambda [authorizer](./lib/api/api-construct.auth.ts), make sure to add an Authorization header with any dummy value in order to call the endpoint successfully e.g `curl https://<API_Endpoint>/substitutions\?id\=<PRODUCT_ID> -H Authorization:ChangeMe`. For future use please add your own security logic in the auth lambda.
 
 ### Filtering
 
