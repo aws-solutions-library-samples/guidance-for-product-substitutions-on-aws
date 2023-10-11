@@ -40,9 +40,13 @@ export default function Substitute() {
             onSubmit={async (e) => {
               e.preventDefault();
               try {
-                const result = await API.get('subs', '/substitutions?id=' + productId, {
-                  headers: { Authorization: 'ChangeMe' },
-                });
+                const result = await API.get(
+                  'subs',
+                  '/substitutions?category_match_level=0&id=' + productId,
+                  {
+                    headers: { Authorization: 'ChangeMe' },
+                  }
+                );
                 setProducts(result);
               } catch (error) {
                 console.error(error);

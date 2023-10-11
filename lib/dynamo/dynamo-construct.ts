@@ -55,7 +55,7 @@ export class Dynamo extends Construct {
         countTableName: countTable.tableName,
       },
       timeout: Duration.minutes(15),
-      memorySize: 10000,
+      memorySize: 3008,
     });
 
     const countLambda = new aws_lambda.Function(this, 'DynamoCounter', {
@@ -66,7 +66,7 @@ export class Dynamo extends Construct {
         countTableName: countTable.tableName,
       },
       timeout: Duration.minutes(15),
-      memorySize: 10000,
+      memorySize: 3008,
     });
 
     countLambda.addEventSource(
@@ -94,7 +94,7 @@ export class Dynamo extends Construct {
       architecture:
         process.arch === 'arm64' ? aws_lambda.Architecture.ARM_64 : aws_lambda.Architecture.X86_64,
       timeout: Duration.minutes(15),
-      memorySize: 10000,
+      memorySize: 3008,
       environment: {
         host: openSearchDomain.domainEndpoint,
         region: Stack.of(this).region,
